@@ -9,6 +9,8 @@ class LCS_EventHandler : EventHandler
     ui bool hasSlotSelected;
     ui String selectedWeaponString;
 
+    ui bool needsWeaponUpdate;
+
     /**
     * Processes keybinds
     */
@@ -66,6 +68,11 @@ class LCS_EventHandler : EventHandler
         if (event.KeyChar == 27)
         {
             isEditing = false;
+
+            slotSelected = (-1, -1);
+            hasSlotSelected = false;
+            selectedWeaponString = "";
+            
             SendNetworkEvent("LCS_NotEditing");
         }
 
@@ -75,15 +82,24 @@ class LCS_EventHandler : EventHandler
             MousePosition = (event.MouseX, event.MouseY);
         }
 
+        /*
         // Mouse left click
         if (event.Type == event.Type_LButtonDown && mouseClicked == false)
         {
-            //Console.printf("Mouse clicked!");
+            Console.printf("Mouse clicked!");
             mouseClicked = true;
         }
         else
         {
+            //Console.printf("Mouse not clicked!");
             mouseClicked = false;
+        }
+        */
+
+        if (event.Type == event.Type_LButtonDown && mouseClicked == false)
+        {
+            Console.printf("Mouse clicked!");
+            mouseClicked = true;
         }
 
         /*
@@ -110,6 +126,16 @@ class LCS_EventHandler : EventHandler
         */
 
         return false;
+    }
+
+    override void UiTick()
+    {
+        if (needsWeaponUpdate)
+        {
+            needsWeaponUpdate = false;
+            UpdateCurrentWeaponsArray();
+            SaveCurrentWeaponsToDisk();
+        }
     }
 
     override void NetworkProcess(ConsoleEvent event)

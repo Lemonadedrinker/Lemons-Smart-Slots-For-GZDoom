@@ -43,8 +43,16 @@ extend class LCS_EventHandler
         // Calculate which slot should have been clicked on
         mouseSlot = CalculateSlotUnderMouse();
 
-        // Calculate if it was a valid click
-        if (mouseClicked && !hasSlotSelected) CalculateMouseClick(mouseSlot.X, mouseSlot.Y);
+        // Need to alternate
+        if (mouseClicked) 
+        {
+            mouseClicked = false;
+            // Calculate if it was a valid click
+            if (!hasSlotSelected) CalculateMouseClick(mouseSlot.X, mouseSlot.Y);
+            
+            // Replace the slot
+            else ReplaceSlot(mouseSlot.X, mouseSlot.Y);
+        }
         
         DrawWeaponBoxes();
 
@@ -250,7 +258,7 @@ extend class LCS_EventHandler
             currentWeapon.weapon.FindState("Spawn", true).GetSpriteTexture(0, 0, (0, 0)),
             true,
             (boxWidth * slot) + (boxWidth / 2),
-            (boxHeight * (row + 1)),
+            (boxHeight * (row + 1) + (boxHeight / 6)),
             DTA_ScaleX, scalingFactor * 1,
             DTA_ScaleY, scalingFactor * 1
         );
@@ -285,7 +293,7 @@ extend class LCS_EventHandler
             currentWeapon.weapon.FindState("Spawn", true).GetSpriteTexture(0, 0, (0, 0)),
             true,
             MousePosition.X,
-            MousePosition.Y,
+            MousePosition.Y + (boxHeight / 6),
             DTA_ScaleX, scalingFactor * 1,
             DTA_ScaleY, scalingFactor * 1
         );
@@ -323,7 +331,6 @@ extend class LCS_EventHandler
 
         // Separate out only the weapons the player currently has
         Array<String> oldSlotCurrentWeapons;
-
         for (int i = 0; i < oldSlotWeaponCVars.Size(); i++)
         {
             if (currentWeaponStrings.Find(oldSlotWeaponCVars[i]) != currentWeaponStrings.Size())
@@ -340,7 +347,7 @@ extend class LCS_EventHandler
             slotSelected = (slotNumber, slotRow);
             hasSlotSelected = true;
             selectedWeaponString = oldSlotCurrentWeapons[slotRow];
-            Console.printf(" selectedWeaponString: "..selectedWeaponString);
+            //Console.printf(" selectedWeaponString: "..selectedWeaponString);
         }
         else
         {
@@ -353,14 +360,36 @@ extend class LCS_EventHandler
     /***
     *   Inserts the weapon into the slot, pushing the others around
     */
-    private ui bool ReplaceSlot(int slotNumber, int slotRow)
+    private ui void ReplaceSlot(int slotNumber, int slotRow)
     {
-        int newCurrentSlot = (mouseSlot.X == 9) ? 0 : mouseSlot.X + 1;
+        // Clicked out of bounds, nothing happens
+        if (mouseSlot == (-1, -1))
+        {
+            return;
+        }
+
+        // Clicked the same slot, set it down and do nothing else
+        if ((slotNumber, slotRow) == slotSelected)
+        {
+            slotSelected = (-1, -1);
+            hasSlotSelected = false;
+            selectedWeaponString = "";
+            Console.printf("Nothing happened...");
+            return;
+        }
+
+        int oldCurrentSlot = (slotSelected.X == 9) ? 0 : slotSelected.X + 1;
+        int newCurrentSlot = (slotNumber == 9) ? 0 : slotNumber + 1;
+
+        Console.printf(" oldslot: %i, newslot: %i", oldCurrentSlot, newCurrentSlot);
 
         // This is the list of weapons for the slots
+        CVar oldCVar = CVar.GetCvar("LCS_Slot"..oldCurrentSlot, players[ConsolePlayer]);
         CVar newCVar = CVar.GetCvar("LCS_Slot"..newcurrentSlot, players[ConsolePlayer]);
 
         // Here the list is split by comma into the weaponCVars
+        Array<String> oldSlotWeaponCVars;
+        oldCVar.GetString().Split(oldSlotWeaponCVars, ",");
         Array<String> newSlotWeaponCVars;
         newCVar.GetString().Split(newSlotWeaponCVars, ",");
 
@@ -373,8 +402,18 @@ extend class LCS_EventHandler
         }
 
         // Separate out only the weapons the player currently has
-        Array<String> newSlotCurrentWeapons;
+        Array<String> oldSlotCurrentWeapons;
+        for (int i = 0; i < oldSlotWeaponCVars.Size(); i++)
+        {
+            if (currentWeaponStrings.Find(oldSlotWeaponCVars[i]) != currentWeaponStrings.Size())
+            {
+                Console.printf("Old slot weapon: " .. oldSlotWeaponCVars[i]);
 
+                oldSlotCurrentWeapons.push(oldSlotWeaponCVars[i]);
+            }
+        }
+
+        Array<String> newSlotCurrentWeapons;
         for (int i = 0; i < newSlotWeaponCVars.Size(); i++)
         {
             if (currentWeaponStrings.Find(newSlotWeaponCVars[i]) != currentWeaponStrings.Size())
@@ -384,45 +423,44 @@ extend class LCS_EventHandler
             }
         }
 
-        // Find the index of the soon to be next weapon
-        int index;
-        if (slotRow > newSlotCurrentWeapons.Size())
+        // Determine the indices
+        // The old index is where the weapon is removed in the cvar,
+        // the new one is where the weapon is added
+
+        int newIndex;
+        if (slotNumber > newSlotCurrentWeapons.Size())
         {
-            index = newSlotCurrentWeapons.Size();
+            newIndex = newSlotCurrentWeapons.Size();
         }
         else
         {
-            index = slotRow;
+            newIndex = slotNumber;
         }
 
-        Console.printf(" Index: %i, slotrow: %i", index, slotRow);
-
-        return (slotRow != slotSelected.X);
-
-        /*
-
-        // Take the weapon, add it to the end of the new cvar
-        int rowIndex;
-
-        if (slotRow < 0) rowIndex = 0;
-        else if (slotRow >= oldSlotCurrentWeapons.Size()) rowIndex = oldSlotCurrentWeapons.Size() - 2;
-        else rowIndex = slotRow;
-
-        String weaponToAdd = oldSlotCurrentWeapons[rowIndex];
-        //newCVar.SetString(""..newCVar.GetString()..weaponToAdd..",");
-
-        // Delete from the old one
-        String oldString = "";
-        
-        //Console.printf(oldSlotWeaponCVars[oldSlotWeaponCVars.Find(weaponToAdd..",") - 1]);
-
-        /*
-        oldSlotWeaponCVars.Delete(oldSlotWeaponCVars.Find(weaponToAdd..","));
-        for (int i = 0; i < oldSlotWeaponCVars.Size(); i++)
+        // Now create the strings to replace the CVars
+        String newString;
+        for (int i = 0; i < newSlotCurrentWeapons.Size(); i++)
         {
-            oldString = oldString..oldSlotWeaponCvars[i];
+            newString = newSlotCurrentWeapons[i];
         }
-        //oldCVar.SetString(oldString);
-        */
+        Console.printf(newString);
+        //newCVar.setString(newString);
+
+        newCVar.SetString(newCVar.GetString()..selectedWeaponString..",");
+
+        // Delete the old CVar
+        // Need the index
+        int oldIndex = oldCVar.getString().IndexOf(selectedWeaponString);
+
+        // Delete the weapon at the index
+        String newOldString = oldCVar.GetString();
+        newOldString.Remove(oldIndex, selectedWeaponString.Length() - 1);
+        oldCVar.SetString(newOldString);
+
+        // Refresh the screen
+        needsWeaponUpdate = true;
+        slotSelected = (-1, -1);
+        hasSlotSelected = false;
+        selectedWeaponString = "";
     }
 }
