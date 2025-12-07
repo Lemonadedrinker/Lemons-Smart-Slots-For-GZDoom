@@ -9,6 +9,8 @@ class LCS_EventHandler : EventHandler
     ui bool hasSlotSelected;
     ui String selectedWeaponString;
 
+    ui bool keyDown;
+
     ui bool needsWeaponUpdate;
 
     /**
@@ -85,8 +87,11 @@ class LCS_EventHandler : EventHandler
         // Try to switch weapons
         int keyChar = event.KeyChar;
         //Console.printf("%i", keyChar);
-        if (keyChar > 47 && keyChar < 58)
+        if (keyChar > 47 && keyChar < 58 && !keyDown)
         {
+            keyDown = true;
+            //Console.printf("key down %b", keyDown);
+
             int slot = keyChar - 48;
             int weaponSlot = (slot != 0) ? slot : 0;
             //Console.printf(" slot: %i, weaponSlot: %i", slot, weaponSlot);
@@ -95,6 +100,11 @@ class LCS_EventHandler : EventHandler
             SaveCurrentWeaponsToDisk();
 
             PlayerSlotNumberSelected(weaponSlot);
+        }
+
+        if (event.Type == UiEvent.Type_KeyUp && UiEvent.Type_Char)
+        {
+            keyDown = false;
         }
 
         if (event.Type == event.Type_LButtonDown && mouseClicked == false)
