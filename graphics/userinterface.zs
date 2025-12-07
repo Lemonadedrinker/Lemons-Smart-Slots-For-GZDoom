@@ -227,7 +227,7 @@ extend class LCS_EventHandler
                     color2 = highlightColor;
                 }
                 // Border if weapon is held by the player
-                if (players[Consoleplayer].ReadyWeapon.GetClassName() == currentWeapon.weapon.GetClassName())
+                if (players[Consoleplayer].ReadyWeapon != null && players[Consoleplayer].ReadyWeapon.GetClassName() == currentWeapon.weapon.GetClassName())
                 {
                     color1 = heldWeaponColor;
                 }
