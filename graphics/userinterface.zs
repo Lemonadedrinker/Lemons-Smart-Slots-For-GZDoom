@@ -16,7 +16,8 @@ extend class LSS_EventHandler
     ui int boxWidth;
     ui int boxHeight;
     ui int bevel;
-    ui int fontColor;
+    ui int slotNumberColor;
+    ui int weaponNameColor;
 
     override void RenderOverlay(RenderEvent event)
     {
@@ -44,7 +45,8 @@ extend class LSS_EventHandler
         temp = LSS_HeldWeaponColor;
         heldWeaponColor = color(temp.b, temp.g, temp.r);
         ghostAlphaValue = LSS_GhostAlphaValue;
-        fontColor = Font.CR_RED;
+        slotNumberColor = LSS_SlotNumberColor;
+        weaponNameColor = LSS_WeaponNameColor;
 
         // Setting the alternating colors
         temp = (LSS_UsingAlternatingColors) ? LSS_OuterColorAlt : LSS_OuterColor;
@@ -150,7 +152,7 @@ extend class LSS_EventHandler
 
             Screen.DrawText(
                 OriginalSmallFont, 
-                fontColor, 
+                slotNumberColor, 
                 i * boxWidth + (boxWidth / 2) - scalingFactor * 8, 
                 boxHeight / 4 - scalingFactor * 7, 
                 ""..(digit),
@@ -338,7 +340,7 @@ extend class LSS_EventHandler
 
         Screen.DrawText(
             OriginalSmallFont, 
-            fontColor, 
+            weaponNameColor, 
             slot * boxWidth + 2 * bevel, 
             (row + 1.3) * boxHeight, 
             currentWeapon.weapon.GetClassName(),
@@ -351,12 +353,15 @@ extend class LSS_EventHandler
 
     private ui void DrawWeaponBoxOnCursor(LSS_Weapon currentWeapon, Color color1, Color color2, float ghostAlphaValue = 1.0)
     {
+        // Offset from cursor
+        Vector2 offset = (boxWidth / 2, boxHeight / 2) * LSS_CursorOffset;
+
         // Draw the box first,
         // then draw the weapon sprite,
         // finally, draw the text over the sprite
         DrawBox(
-            (MousePosition.X,
-            MousePosition.Y),
+            (MousePosition.X + offset.X,
+            MousePosition.Y + offset.Y),
             boxWidth,
             boxHeight,
             bevel,
@@ -368,17 +373,17 @@ extend class LSS_EventHandler
         Screen.DrawTexture(
             currentWeapon.weapon.FindState("Spawn", true).GetSpriteTexture(0, 0, (0, 0)),
             true,
-            MousePosition.X,
-            MousePosition.Y + (boxHeight / 6),
+            MousePosition.X + offset.X,
+            MousePosition.Y + (boxHeight / 6) + offset.Y,
             DTA_ScaleX, scalingFactor * 1,
             DTA_ScaleY, scalingFactor * 1
         );
 
         Screen.DrawText(
             OriginalSmallFont, 
-            fontColor, 
-            MousePosition.X - (boxWidth / 2) + (2 * bevel), 
-            MousePosition.Y + (.3) * boxHeight, 
+            weaponNameColor, 
+            MousePosition.X - (boxWidth / 2) + (2 * bevel) + offset.X, 
+            MousePosition.Y + (.3) * boxHeight + offset.Y, 
             currentWeapon.weapon.GetClassName(),
             DTA_ScaleX, scalingFactor / 2,
             DTA_ScaleY, scalingFactor / 2,
