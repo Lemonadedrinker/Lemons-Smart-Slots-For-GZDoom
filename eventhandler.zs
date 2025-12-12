@@ -360,7 +360,8 @@ class LSS_EventHandler : EventHandler
         //Console.printf("In slot: "..inCustomSlot);
 
         // We need a list of weapons in the slot that the player *also* has
-        Array<String> currentWeaponsInSlot;
+        Array<String> currentWeaponsInSlotString;
+        Array<Weapon> currentWeaponsInSlotObject;
         // We can also check if the held weapon is in the new slot already
         bool inCustomSlot = false;
         for (int i = 0; i < weaponCVars.Size(); i++)
@@ -370,7 +371,8 @@ class LSS_EventHandler : EventHandler
             {
                 if (weaponCVars[i] == currentWeapons[j].weapon.GetClassName())
                 {
-                    currentWeaponsInSlot.Push(currentWeapons[j].weapon.GetClassName());
+                    currentWeaponsInSlotString.Push(currentWeapons[j].weapon.GetClassName());
+                    currentWeaponsInSlotObject.Push(currentWeapons[j].weapon);
 
                     // Check if the held weapon is in the slot
                     if (currentWeapons[j].weapon.GetClassName() == heldWeapon.GetClassName()) inCustomSlot = true;
@@ -379,22 +381,23 @@ class LSS_EventHandler : EventHandler
         }
 
         // If no weapons in the slot, do nothing
-        if (currentWeaponsInSlot.Size() == 0) return;
+        if (currentWeaponsInSlotString.Size() == 0) return;
 
         // If the weapon is in the slot already, then switch to the next weapon (if there is one)
+        int weaponIndex = 0;
         if (inCustomSlot)
         {
             // Do nothing if there is only one weapon
-            if (currentWeaponsInSlot.Size() == 1) return;
+            if (currentWeaponsInSlotString.Size() == 1) return;
 
             // Find the index of the current weapon
             // Increment by 1 because we want the next weapon
-            int weaponIndex = currentWeaponsInSlot.Find(heldWeapon.GetClassName());
+            weaponIndex = currentWeaponsInSlotString.Find(heldWeapon.GetClassName());
             weaponIndex++;
 
             // If the index matches the size, then it was the last one,
             // so grab the first weapon
-            if (weaponIndex == currentWeaponsInSlot.Size()) weaponIndex = 0;
+            if (weaponIndex == currentWeaponsInSlotString.Size()) weaponIndex = 0;
 
             // If LSS_RememberLastWeaponInSlot = true, then
             // move the current weapon in the CVar to the end
@@ -412,7 +415,7 @@ class LSS_EventHandler : EventHandler
                 UpdateCurrentWeaponsArray();
                 SaveCurrentWeaponsToDisk();
             }
-            String newWeaponString = currentWeaponsInSlot[weaponIndex];
+            String newWeaponString = currentWeaponsInSlotString[weaponIndex];
 
             // Print out a hudmessage
             //HUDMessageBase message = new HUDMessageBase("Message");
@@ -424,9 +427,11 @@ class LSS_EventHandler : EventHandler
         // If not, then switch to the first weapon in the new slot
         else
         {
-            //Console.printf(currentWeaponsInSlot[0]);
-            SendNetworkEvent("LSS_WeaponSwitchTo"..currentWeaponsInSlot[0]);
+            //Console.printf(currentWeaponsInSlotString[0]);
+            SendNetworkEvent("LSS_WeaponSwitchTo"..currentWeaponsInSlotString[0]);
         }
+        // Display the name of the weapon on the bottom of the screen
+        currentWeaponsInSlotObject[weaponIndex].DisplayNameTag();
     }
 
     ui void SetColorPreset()
