@@ -404,7 +404,14 @@ extend class LSS_EventHandler
                 color1 = (slotSelected.X % 2 == 0) ? outerColor : outerColorAlt;
                 color2 = (slotSelected.X % 2 == 0) ? innerColor : innerColorAlt;
 
-                // Ghost where originaly clicked
+                // Border if weapon is held by the player
+                if (
+                    players[Consoleplayer].ReadyWeapon.GetClassName() == selectedWeaponObject.GetClassName())
+                {
+                    color1 = heldWeaponColor;
+                }
+
+                // Ghost where originally clicked
                 if (weaponToSwap)
                 {
                     if (validGhost)
@@ -441,9 +448,9 @@ extend class LSS_EventHandler
         // Sprite texture
         TextureID texture;
         // Flags from: https://zdoom.org/wiki/GetInventoryIcon
-        if (BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, 15))
+        if (BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, 8))
         {
-            texture = BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, 15);
+            texture = BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, 8);
         }
         else
         {
@@ -463,16 +470,28 @@ extend class LSS_EventHandler
             );
         }
 
+        // Add return character after 12
+        // 12 happens to be the size of the boxes
+        String textToDraw = currentWeapon.weapon.GetTag();
+        int returnIndex = textToDraw.RightIndexOf(" ", 12);
+        if (returnIndex == -1) returnIndex == 12;
+
+        String lineOne = textToDraw.Left(returnIndex);
+        String lineTwo = textToDraw.Mid(returnIndex + 1);
+        
+        if (lineOne != lineTwo) textToDraw = lineOne.."\n"..lineTwo;
+        else textToDraw = lineOne;
+
         Screen.DrawText(
             OriginalSmallFont, 
             weaponNameColor, 
             slot * boxWidth + 2 * bevel, 
-            (row + 1.3) * boxHeight, 
-            currentWeapon.weapon.GetClassName(),
+            (row + 1.235) * boxHeight, 
+            textToDraw,
             DTA_Alpha, ghostAlphaValue,
             DTA_ScaleX, scalingFactor / 2,
             DTA_ScaleY, scalingFactor / 2,
-            DTA_TextLen, 11
+            DTA_ClipRight, (slot + 1) * boxWidth - 2 * bevel
         );
     }
 

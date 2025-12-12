@@ -360,7 +360,8 @@ class LSS_EventHandler : EventHandler
         //Console.printf("In slot: "..inCustomSlot);
 
         // We need a list of weapons in the slot that the player *also* has
-        Array<String> currentWeaponsInSlot;
+        Array<String> currentWeaponsInSlotString;
+        Array<Weapon> currentWeaponsInSlotObject;
         // We can also check if the held weapon is in the new slot already
         bool inCustomSlot = false;
         for (int i = 0; i < weaponCVars.Size(); i++)
@@ -370,7 +371,8 @@ class LSS_EventHandler : EventHandler
             {
                 if (weaponCVars[i] == currentWeapons[j].weapon.GetClassName())
                 {
-                    currentWeaponsInSlot.Push(currentWeapons[j].weapon.GetClassName());
+                    currentWeaponsInSlotString.Push(currentWeapons[j].weapon.GetClassName());
+                    currentWeaponsInSlotObject.Push(currentWeapons[j].weapon);
 
                     // Check if the held weapon is in the slot
                     if (currentWeapons[j].weapon.GetClassName() == heldWeapon.GetClassName()) inCustomSlot = true;
@@ -379,22 +381,23 @@ class LSS_EventHandler : EventHandler
         }
 
         // If no weapons in the slot, do nothing
-        if (currentWeaponsInSlot.Size() == 0) return;
+        if (currentWeaponsInSlotString.Size() == 0) return;
 
         // If the weapon is in the slot already, then switch to the next weapon (if there is one)
+        int weaponIndex = 0;
         if (inCustomSlot)
         {
             // Do nothing if there is only one weapon
-            if (currentWeaponsInSlot.Size() == 1) return;
+            if (currentWeaponsInSlotString.Size() == 1) return;
 
             // Find the index of the current weapon
             // Increment by 1 because we want the next weapon
-            int weaponIndex = currentWeaponsInSlot.Find(heldWeapon.GetClassName());
+            weaponIndex = currentWeaponsInSlotString.Find(heldWeapon.GetClassName());
             weaponIndex++;
 
             // If the index matches the size, then it was the last one,
             // so grab the first weapon
-            if (weaponIndex == currentWeaponsInSlot.Size()) weaponIndex = 0;
+            if (weaponIndex == currentWeaponsInSlotString.Size()) weaponIndex = 0;
 
             // If LSS_RememberLastWeaponInSlot = true, then
             // move the current weapon in the CVar to the end
@@ -412,7 +415,7 @@ class LSS_EventHandler : EventHandler
                 UpdateCurrentWeaponsArray();
                 SaveCurrentWeaponsToDisk();
             }
-            String newWeaponString = currentWeaponsInSlot[weaponIndex];
+            String newWeaponString = currentWeaponsInSlotString[weaponIndex];
 
             // Print out a hudmessage
             //HUDMessageBase message = new HUDMessageBase("Message");
@@ -424,9 +427,11 @@ class LSS_EventHandler : EventHandler
         // If not, then switch to the first weapon in the new slot
         else
         {
-            //Console.printf(currentWeaponsInSlot[0]);
-            SendNetworkEvent("LSS_WeaponSwitchTo"..currentWeaponsInSlot[0]);
+            //Console.printf(currentWeaponsInSlotString[0]);
+            SendNetworkEvent("LSS_WeaponSwitchTo"..currentWeaponsInSlotString[0]);
         }
+        // Display the name of the weapon on the bottom of the screen
+        currentWeaponsInSlotObject[weaponIndex].DisplayNameTag();
     }
 
     ui void SetColorPreset()
@@ -452,8 +457,30 @@ class LSS_EventHandler : EventHandler
             highlightColor.ResetToDefault();
             heldWeaponColor.ResetToDefault();
         }
-        // Trans Flag
         else if (LSS_ColorPreset == 1)
+        {
+            slotNumberColor.SetInt(9);
+            weaponNameColor.SetInt(2);
+            outerColor.SetString("ad c7 e7");
+            outerColorAlt.SetString("dd c9 af");
+            innerColor.SetString("e4 ef ff");
+            innerColorAlt.SetString("ff e0 d3");
+            highlightColor.SetString("ff ff ff");
+            heldWeaponColor.SetString("8b 8b 8b");
+        }
+        else if (LSS_ColorPreset == 2)
+        {
+            slotNumberColor.SetInt(12);
+            weaponNameColor.SetInt(20);
+            outerColor.SetString("15 1b 23");
+            outerColorAlt.SetString("1b 1b 1b");
+            innerColor.SetString("07 13 1c");
+            innerColorAlt.SetString("0b 0b 0b");
+            highlightColor.SetString("3b 3b 3b");
+            heldWeaponColor.SetString("27 27 27");
+        }
+        // Trans Flag
+        else if (LSS_ColorPreset == 3)
         {
             slotNumberColor.SetInt(9);
             weaponNameColor.SetInt(9);
@@ -461,6 +488,17 @@ class LSS_EventHandler : EventHandler
             outerColorAlt.SetString("33 00 1f");
             innerColor.SetString("5b ce fa");
             innerColorAlt.SetString("f5 a9 b8");
+            highlightColor.SetString("ff ff ff");
+            heldWeaponColor.SetString("ff ff ff");
+        }
+        else if (LSS_ColorPreset == 4)
+        {
+            slotNumberColor.SetInt(9);
+            weaponNameColor.SetInt(9);
+            outerColor.SetString("2c 2c 2c");
+            outerColorAlt.SetString("2c 2c 2c");
+            innerColor.SetString("fc f4 34");
+            innerColorAlt.SetString("9c 58 d1");
             highlightColor.SetString("ff ff ff");
             heldWeaponColor.SetString("ff ff ff");
         }
