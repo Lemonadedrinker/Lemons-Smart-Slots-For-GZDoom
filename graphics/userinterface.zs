@@ -448,9 +448,9 @@ extend class LSS_EventHandler
         // Sprite texture
         TextureID texture;
         // Flags from: https://zdoom.org/wiki/GetInventoryIcon
-        if (BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, 8))
+        if (BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, 27))
         {
-            texture = BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, 8);
+            texture = BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, 27);
         }
         else
         {
