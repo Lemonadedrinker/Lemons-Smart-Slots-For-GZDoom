@@ -771,8 +771,8 @@ extend class LSS_EventHandler
             // Normal case
             if (!isSameSlot)
             {
-                newCVarStringIndex = newCVar.GetString().IndexOf(newSlotCurrentWeapons[newIndex]);
-                //Console.printf(" newCVar: "..newCVar.GetString().Left(newCVarStringIndex).." SPLIT "..newCVar.GetString().Mid(newCVarStringIndex));
+                newCVarStringIndex = newCVar.GetString().IndexOf(","..newSlotCurrentWeapons[newIndex]..",") + 1;
+                //Console.printf(" newCVar:"..newCVar.GetString().Left(newCVarStringIndex).."SPLIT"..newCVar.GetString().Mid(newCVarStringIndex));
                 newCVar.SetString(newCVar.GetString().Left(newCVarStringIndex)..selectedWeaponString..","..newCVar.GetString().Mid(newCVarStringIndex));
             }
             // Need to exclude the old weapon here
@@ -782,12 +782,12 @@ extend class LSS_EventHandler
                 if (newIndex < slotSelected.Y)
                 {
                     //Console.printf(" CVarNoWeapon1: "..CVarNoWeapon);
-                    CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(selectedWeaponString), selectedWeaponString.Length() + 1);
+                    CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(","..selectedWeaponString..",") + 1, selectedWeaponString.Length() + 1);
                     //Console.printf(" CVarNoWeapon2: "..CVarNoWeapon);
 
                     //Console.printf("Before");
                     
-                    newCVarStringIndex = CVarNoWeapon.IndexOf(newSlotCurrentWeapons[newIndex]);
+                    newCVarStringIndex = CVarNoWeapon.IndexOf(","..newSlotCurrentWeapons[newIndex]..",") + 1;
                     //Console.printf(" newCVar: "..CVarNoWeapon.Left(newCVarStringIndex).." SPLIT "..CVarNoWeapon.Mid(newCVarStringIndex - 1));
                     newCVar.SetString(CVarNoWeapon.Left(newCVarStringIndex)..selectedWeaponString..","..CVarNoWeapon.Mid(newCVarStringIndex));
                 }
@@ -797,12 +797,14 @@ extend class LSS_EventHandler
                     // Need to decrement to avoid going out of bounds
                     if (newIndex < newSlotCurrentWeapons.Size() - 1)
                     {
-                        //Console.printf("After");
+                        Console.printf("After");
                         // Delete the old weapon
-                        CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(selectedWeaponString), selectedWeaponString.Length() + 1);
+                        Console.printf(" unmodified newCVar:"..CVarNoWeapon);
+                        CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(","..selectedWeaponString..",") + 1, selectedWeaponString.Length() + 1);
+                        Console.printf(" deleted weapon newCVar:"..CVarNoWeapon);
 
-                        newCVarStringIndex = CVarNoWeapon.IndexOf(newSlotCurrentWeapons[newIndex + 1]);
-                        //Console.printf(" newCVar: "..CVarNoWeapon.Left(newCVarStringIndex).." SPLIT "..CVarNoWeapon.Mid(newCVarStringIndex - 1));
+                        newCVarStringIndex = CVarNoWeapon.IndexOf(","..newSlotCurrentWeapons[newIndex + 1]..",") + 1;
+                        Console.printf(" newCVar:"..CVarNoWeapon.Left(newCVarStringIndex).."SPLIT"..CVarNoWeapon.Mid(newCVarStringIndex - 1));
                         newCVar.SetString(CVarNoWeapon.Left(newCVarStringIndex)..selectedWeaponString..","..CVarNoWeapon.Mid(newCVarStringIndex));
                     }
                     else
@@ -810,7 +812,7 @@ extend class LSS_EventHandler
                         //newCVarStringIndex = CVarNoWeapon.IndexOf(newSlotCurrentWeapons[newIndex]);
                         //Console.printf("Very end");
                         // Delete the old weapon
-                        CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(selectedWeaponString), selectedWeaponString.Length() + 1);
+                        CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(","..selectedWeaponString..",") + 1, selectedWeaponString.Length() + 1);
                         // Tack the weapon on to the end
                         newCVar.SetString(CVarNoWeapon..selectedWeaponString..",");
                     }
@@ -826,14 +828,14 @@ extend class LSS_EventHandler
             }
             else
             {
-                CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(selectedWeaponString), selectedWeaponString.Length() + 1);
+                CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(","..selectedWeaponString..",") + 1, selectedWeaponString.Length() + 1);
                 newCVar.SetString(CVarNoWeapon..selectedWeaponString..",");
             }
         }
 
         // Delete the old CVar
         // Need the index
-        int oldIndex = oldCVar.getString().IndexOf(selectedWeaponString);
+        int oldIndex = oldCVar.getString().IndexOf(","..selectedWeaponString..",") + 1;
 
         // Delete the weapon at the index, only if a different slot
         if (!isSameSlot)
