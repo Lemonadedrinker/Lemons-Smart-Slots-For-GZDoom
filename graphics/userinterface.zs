@@ -87,12 +87,12 @@ extend class LSS_EventHandler
                 if (ReplaceSlot(mouseSlot.X, mouseSlot.Y))
                 {
                     // Play successful sound
-                    players[ConsolePlayer].mo.A_StartSound("LSS_SelectSound", 0, CHANF_UI == true, LSS_UIVolume);
+                    players[ConsolePlayer].mo.A_StartSound("LSS_SelectSound", 0, CHANF_UI == true, LSS_UIVolume, ATTN_NONE, cfrandom(0.5, 1.5));
                 }
                 else
                 {
                     // Play invalid sound
-                    players[ConsolePlayer].mo.A_StartSound("LSS_InvalidSound", 0, CHANF_UI == true, LSS_UIVolume);
+                    players[ConsolePlayer].mo.A_StartSound("LSS_InvalidSound", 0, CHANF_UI == true, LSS_UIVolume, ATTN_NONE, 1);
                 }
             }
         }
@@ -109,7 +109,7 @@ extend class LSS_EventHandler
                 //Console.printf("Not swapping.");
 
                 // Playsound
-                players[ConsolePlayer].mo.A_StartSound("LSS_SelectSound", 0, CHANF_UI == true, LSS_UIVolume);
+                players[ConsolePlayer].mo.A_StartSound("LSS_SelectSound", 0, CHANF_UI == true, LSS_UIVolume, ATTN_NONE, cfrandom(0.5, 1.5));
             }
             else
             {
@@ -119,12 +119,12 @@ extend class LSS_EventHandler
                 if (SwapSlot(slotSelected, mouseSlot))
                 {
                     // Play successful sound
-                    players[ConsolePlayer].mo.A_StartSound("LSS_SwapSound", 0, CHANF_UI == true, LSS_UIVolume);
+                    players[ConsolePlayer].mo.A_StartSound("LSS_SwapSound", 0, CHANF_UI == true, LSS_UIVolume, ATTN_NONE, cfrandom(0.8, 1.2));
                 }
                 else
                 {
                     // Play invalid sound
-                    players[ConsolePlayer].mo.A_StartSound("LSS_InvalidSound", 0, CHANF_UI == true, LSS_UIVolume);
+                    players[ConsolePlayer].mo.A_StartSound("LSS_InvalidSound", 0, CHANF_UI == true, LSS_UIVolume, ATTN_NONE, 1);
                 }
             }
         }
@@ -797,14 +797,14 @@ extend class LSS_EventHandler
                     // Need to decrement to avoid going out of bounds
                     if (newIndex < newSlotCurrentWeapons.Size() - 1)
                     {
-                        Console.printf("After");
+                        //Console.printf("After");
                         // Delete the old weapon
-                        Console.printf(" unmodified newCVar:"..CVarNoWeapon);
+                        //Console.printf(" unmodified newCVar:"..CVarNoWeapon);
                         CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(","..selectedWeaponString..",") + 1, selectedWeaponString.Length() + 1);
-                        Console.printf(" deleted weapon newCVar:"..CVarNoWeapon);
+                        //Console.printf(" deleted weapon newCVar:"..CVarNoWeapon);
 
                         newCVarStringIndex = CVarNoWeapon.IndexOf(","..newSlotCurrentWeapons[newIndex + 1]..",") + 1;
-                        Console.printf(" newCVar:"..CVarNoWeapon.Left(newCVarStringIndex).."SPLIT"..CVarNoWeapon.Mid(newCVarStringIndex - 1));
+                        //Console.printf(" newCVar:"..CVarNoWeapon.Left(newCVarStringIndex).."SPLIT"..CVarNoWeapon.Mid(newCVarStringIndex - 1));
                         newCVar.SetString(CVarNoWeapon.Left(newCVarStringIndex)..selectedWeaponString..","..CVarNoWeapon.Mid(newCVarStringIndex));
                     }
                     else
