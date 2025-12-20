@@ -87,12 +87,12 @@ extend class LSS_EventHandler
                 if (ReplaceSlot(mouseSlot.X, mouseSlot.Y))
                 {
                     // Play successful sound
-                    players[ConsolePlayer].mo.A_StartSound("LSS_SelectSound", 0, CHANF_UI == true, LSS_UIVolume);
+                    players[ConsolePlayer].mo.A_StartSound("LSS_SelectSound", 0, CHANF_UI == true, LSS_UIVolume, ATTN_NONE, cfrandom(0.5, 1.5));
                 }
                 else
                 {
                     // Play invalid sound
-                    players[ConsolePlayer].mo.A_StartSound("LSS_InvalidSound", 0, CHANF_UI == true, LSS_UIVolume);
+                    players[ConsolePlayer].mo.A_StartSound("LSS_InvalidSound", 0, CHANF_UI == true, LSS_UIVolume, ATTN_NONE, 1);
                 }
             }
         }
@@ -109,7 +109,7 @@ extend class LSS_EventHandler
                 //Console.printf("Not swapping.");
 
                 // Playsound
-                players[ConsolePlayer].mo.A_StartSound("LSS_SelectSound", 0, CHANF_UI == true, LSS_UIVolume);
+                players[ConsolePlayer].mo.A_StartSound("LSS_SelectSound", 0, CHANF_UI == true, LSS_UIVolume, ATTN_NONE, cfrandom(0.5, 1.5));
             }
             else
             {
@@ -119,12 +119,12 @@ extend class LSS_EventHandler
                 if (SwapSlot(slotSelected, mouseSlot))
                 {
                     // Play successful sound
-                    players[ConsolePlayer].mo.A_StartSound("LSS_SwapSound", 0, CHANF_UI == true, LSS_UIVolume);
+                    players[ConsolePlayer].mo.A_StartSound("LSS_SwapSound", 0, CHANF_UI == true, LSS_UIVolume, ATTN_NONE, cfrandom(0.8, 1.2));
                 }
                 else
                 {
                     // Play invalid sound
-                    players[ConsolePlayer].mo.A_StartSound("LSS_InvalidSound", 0, CHANF_UI == true, LSS_UIVolume);
+                    players[ConsolePlayer].mo.A_StartSound("LSS_InvalidSound", 0, CHANF_UI == true, LSS_UIVolume, ATTN_NONE, 1);
                 }
             }
         }
@@ -445,17 +445,35 @@ extend class LSS_EventHandler
             ghostAlphaValue
         );
 
-        // Sprite texture
+        // Retrieving the sprite texture
         TextureID texture;
         // Flags from: https://zdoom.org/wiki/GetInventoryIcon
-        if (BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, 8))
+        int flags = 1 + 2 + 8 + 16;
+        if (BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, flags))
         {
-            texture = BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, 8);
+            texture = BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, flags);
         }
         else
         {
             texture = currentWeapon.weapon.FindState("Spawn", true).GetSpriteTexture(0, 0, (0, 0));
         }
+
+        //Console.printf("%i", TexMan.CheckRealHeight(texture));
+
+        // Getting the width and real height of the weapon sprites
+        int textureWidth;
+        int textureHeight;
+        [textureWidth, textureHeight] = TexMan.GetSize(texture);
+        textureHeight = TexMan.CheckRealHeight(texture);
+
+        // Evil hardcoded values
+        float textureByWidth = 44.0 / textureWidth;
+        float textureByHeight = 24.0 / textureHeight;
+
+        // Scale by the smaller value
+        float textureScale = (textureByWidth < textureByHeight) ? textureByWidth : textureByHeight;
+
+        //Console.printf("%f", textureScale);
 
         if (texture.IsValid())
         {
@@ -463,10 +481,11 @@ extend class LSS_EventHandler
                 texture,
                 true,
                 (boxWidth * slot) + (boxWidth / 2),
-                (boxHeight * (row + 1) + (boxHeight / 6)),
+                (boxHeight * (row + 1) - (boxHeight / 10)),
                 DTA_Alpha, ghostAlphaValue,
-                DTA_ScaleX, scalingFactor * 1,
-                DTA_ScaleY, scalingFactor * 1
+                DTA_ScaleX, scalingFactor * textureScale,
+                DTA_ScaleY, scalingFactor * textureScale,
+                DTA_CenterOffset, true
             );
         }
 
@@ -514,6 +533,51 @@ extend class LSS_EventHandler
             ghostAlphaValue
         );
 
+        // Retrieving the sprite texture
+        TextureID texture;
+        // Flags from: https://zdoom.org/wiki/GetInventoryIcon
+        int flags = 1 + 2 + 8 + 16;
+        if (BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, flags))
+        {
+            texture = BaseStatusBar.GetInventoryIcon(currentWeapon.weapon, flags);
+        }
+        else
+        {
+            texture = currentWeapon.weapon.FindState("Spawn", true).GetSpriteTexture(0, 0, (0, 0));
+        }
+
+        //Console.printf("%i", TexMan.CheckRealHeight(texture));
+
+        // Getting the width and real height of the weapon sprites
+        int textureWidth;
+        int textureHeight;
+        [textureWidth, textureHeight] = TexMan.GetSize(texture);
+        textureHeight = TexMan.CheckRealHeight(texture);
+
+        // Evil hardcoded values
+        float textureByWidth = 44.0 / textureWidth;
+        float textureByHeight = 24.0 / textureHeight;
+
+        // Scale by the smaller value
+        float textureScale = (textureByWidth < textureByHeight) ? textureByWidth : textureByHeight;
+
+        //Console.printf("%f", textureScale);
+
+        if (texture.IsValid())
+        {
+            Screen.DrawTexture(
+                texture,
+                true,
+                MousePosition.X + offset.X,
+                MousePosition.Y - (boxHeight / 10) + offset.Y,
+                DTA_Alpha, ghostAlphaValue,
+                DTA_ScaleX, scalingFactor * textureScale,
+                DTA_ScaleY, scalingFactor * textureScale,
+                DTA_CenterOffset, true
+            );
+        }
+
+        /*
         Screen.DrawTexture(
             currentWeapon.weapon.FindState("Spawn", true).GetSpriteTexture(0, 0, (0, 0)),
             true,
@@ -523,7 +587,36 @@ extend class LSS_EventHandler
             DTA_ScaleX, scalingFactor * 1,
             DTA_ScaleY, scalingFactor * 1
         );
+        */
 
+        // Add return character after 12
+        // 12 happens to be the size of the boxes
+        String textToDraw = currentWeapon.weapon.GetTag();
+        int returnIndex = textToDraw.RightIndexOf(" ", 12);
+        if (returnIndex == -1) returnIndex == 12;
+
+        String lineOne = textToDraw.Left(returnIndex);
+        String lineTwo = textToDraw.Mid(returnIndex + 1);
+        
+        if (lineOne != lineTwo) textToDraw = lineOne.."\n"..lineTwo;
+        else textToDraw = lineOne;
+
+        // Needed to cast as an int
+        int clipRight = (mousePosition.X) + (boxWidth * 0.5) - 2 * bevel + offset.X;
+
+        Screen.DrawText(
+            OriginalSmallFont, 
+            weaponNameColor, 
+            MousePosition.X - (boxWidth / 2) + (2 * bevel) + offset.X, 
+            MousePosition.Y + 0.235 * boxHeight + offset.Y, 
+            textToDraw,
+            DTA_Alpha, ghostAlphaValue,
+            DTA_ScaleX, scalingFactor / 2,
+            DTA_ScaleY, scalingFactor / 2,
+            DTA_ClipRight, clipRight
+        );
+
+        /*
         Screen.DrawText(
             OriginalSmallFont, 
             weaponNameColor, 
@@ -534,6 +627,7 @@ extend class LSS_EventHandler
             DTA_ScaleY, scalingFactor / 2,
             DTA_TextLen, 11
         );
+        */
     }
 
     private ui void CalculateMouseClick(int slotNumber, int slotRow)
@@ -677,8 +771,8 @@ extend class LSS_EventHandler
             // Normal case
             if (!isSameSlot)
             {
-                newCVarStringIndex = newCVar.GetString().IndexOf(newSlotCurrentWeapons[newIndex]);
-                //Console.printf(" newCVar: "..newCVar.GetString().Left(newCVarStringIndex).." SPLIT "..newCVar.GetString().Mid(newCVarStringIndex));
+                newCVarStringIndex = newCVar.GetString().IndexOf(","..newSlotCurrentWeapons[newIndex]..",") + 1;
+                //Console.printf(" newCVar:"..newCVar.GetString().Left(newCVarStringIndex).."SPLIT"..newCVar.GetString().Mid(newCVarStringIndex));
                 newCVar.SetString(newCVar.GetString().Left(newCVarStringIndex)..selectedWeaponString..","..newCVar.GetString().Mid(newCVarStringIndex));
             }
             // Need to exclude the old weapon here
@@ -688,12 +782,12 @@ extend class LSS_EventHandler
                 if (newIndex < slotSelected.Y)
                 {
                     //Console.printf(" CVarNoWeapon1: "..CVarNoWeapon);
-                    CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(selectedWeaponString), selectedWeaponString.Length() + 1);
+                    CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(","..selectedWeaponString..",") + 1, selectedWeaponString.Length() + 1);
                     //Console.printf(" CVarNoWeapon2: "..CVarNoWeapon);
 
                     //Console.printf("Before");
                     
-                    newCVarStringIndex = CVarNoWeapon.IndexOf(newSlotCurrentWeapons[newIndex]);
+                    newCVarStringIndex = CVarNoWeapon.IndexOf(","..newSlotCurrentWeapons[newIndex]..",") + 1;
                     //Console.printf(" newCVar: "..CVarNoWeapon.Left(newCVarStringIndex).." SPLIT "..CVarNoWeapon.Mid(newCVarStringIndex - 1));
                     newCVar.SetString(CVarNoWeapon.Left(newCVarStringIndex)..selectedWeaponString..","..CVarNoWeapon.Mid(newCVarStringIndex));
                 }
@@ -705,10 +799,12 @@ extend class LSS_EventHandler
                     {
                         //Console.printf("After");
                         // Delete the old weapon
-                        CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(selectedWeaponString), selectedWeaponString.Length() + 1);
+                        //Console.printf(" unmodified newCVar:"..CVarNoWeapon);
+                        CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(","..selectedWeaponString..",") + 1, selectedWeaponString.Length() + 1);
+                        //Console.printf(" deleted weapon newCVar:"..CVarNoWeapon);
 
-                        newCVarStringIndex = CVarNoWeapon.IndexOf(newSlotCurrentWeapons[newIndex + 1]);
-                        //Console.printf(" newCVar: "..CVarNoWeapon.Left(newCVarStringIndex).." SPLIT "..CVarNoWeapon.Mid(newCVarStringIndex - 1));
+                        newCVarStringIndex = CVarNoWeapon.IndexOf(","..newSlotCurrentWeapons[newIndex + 1]..",") + 1;
+                        //Console.printf(" newCVar:"..CVarNoWeapon.Left(newCVarStringIndex).."SPLIT"..CVarNoWeapon.Mid(newCVarStringIndex - 1));
                         newCVar.SetString(CVarNoWeapon.Left(newCVarStringIndex)..selectedWeaponString..","..CVarNoWeapon.Mid(newCVarStringIndex));
                     }
                     else
@@ -716,7 +812,7 @@ extend class LSS_EventHandler
                         //newCVarStringIndex = CVarNoWeapon.IndexOf(newSlotCurrentWeapons[newIndex]);
                         //Console.printf("Very end");
                         // Delete the old weapon
-                        CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(selectedWeaponString), selectedWeaponString.Length() + 1);
+                        CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(","..selectedWeaponString..",") + 1, selectedWeaponString.Length() + 1);
                         // Tack the weapon on to the end
                         newCVar.SetString(CVarNoWeapon..selectedWeaponString..",");
                     }
@@ -732,14 +828,14 @@ extend class LSS_EventHandler
             }
             else
             {
-                CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(selectedWeaponString), selectedWeaponString.Length() + 1);
+                CVarNoWeapon.Remove(CVarNoWeapon.IndexOf(","..selectedWeaponString..",") + 1, selectedWeaponString.Length() + 1);
                 newCVar.SetString(CVarNoWeapon..selectedWeaponString..",");
             }
         }
 
         // Delete the old CVar
         // Need the index
-        int oldIndex = oldCVar.getString().IndexOf(selectedWeaponString);
+        int oldIndex = oldCVar.getString().IndexOf(","..selectedWeaponString..",") + 1;
 
         // Delete the weapon at the index, only if a different slot
         if (!isSameSlot)
