@@ -467,8 +467,8 @@ extend class LSS_EventHandler
         textureHeight = TexMan.CheckRealHeight(texture);
 
         // Evil hardcoded values
-        float textureByWidth = 44.0 / textureWidth;
-        float textureByHeight = 24.0 / textureHeight;
+        float textureByWidth = (textureWidth != 0) ? 44.0 / textureWidth : 1.0;
+        float textureByHeight = (textureHeight != 0) ? 24.0 / textureHeight : 1.0;
 
         // Scale by the smaller value
         float textureScale = (textureByWidth < textureByHeight) ? textureByWidth : textureByHeight;
@@ -555,8 +555,8 @@ extend class LSS_EventHandler
         textureHeight = TexMan.CheckRealHeight(texture);
 
         // Evil hardcoded values
-        float textureByWidth = 44.0 / textureWidth;
-        float textureByHeight = 24.0 / textureHeight;
+        float textureByWidth = (textureWidth != 0) ? 44.0 / textureWidth : 1.0;
+        float textureByHeight = (textureHeight != 0) ? 24.0 / textureHeight : 1.0;
 
         // Scale by the smaller value
         float textureScale = (textureByWidth < textureByHeight) ? textureByWidth : textureByHeight;
