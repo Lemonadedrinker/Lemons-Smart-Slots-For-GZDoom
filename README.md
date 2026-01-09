@@ -2,6 +2,10 @@
 My implementation for customizable slots for weapons in GZDoom.
 It is designed for singleplayer and multiplayer.
 
+To use, press the "Edit Slots" key (default ') to open the user interface.
+You can then click each weapon to insert into a different slot.
+You can also click and drag weapons to swap the two!
+
 ## Various customization settings!
 ### Default
 ![defaultpreview](https://github.com/user-attachments/assets/ff561bb2-7c28-41a8-910d-ce47b5044c09)
