@@ -1,0 +1,24 @@
+AddKeySection "Lemons Smart Slots" LemonsSmartSlots
+AddMenuKey "Edit Slots" LSS_Edit
+AddMenuKey "Weapon Slot 1" LSS_Switch1
+AddMenuKey "Weapon Slot 2" LSS_Switch2
+AddMenuKey "Weapon Slot 3" LSS_Switch3
+AddMenuKey "Weapon Slot 4" LSS_Switch4
+AddMenuKey "Weapon Slot 5" LSS_Switch5
+AddMenuKey "Weapon Slot 6" LSS_Switch6
+AddMenuKey "Weapon Slot 7" LSS_Switch7
+AddMenuKey "Weapon Slot 8" LSS_Switch8
+AddMenuKey "Weapon Slot 9" LSS_Switch9
+AddMenuKey "Weapon Slot 0" LSS_Switch0
+
+Alias LSS_Edit "event LSS_Edit"
+Alias LSS_Switch1 "event LSS_Switch1"
+Alias LSS_Switch2 "event LSS_Switch2"
+Alias LSS_Switch3 "event LSS_Switch3"
+Alias LSS_Switch4 "event LSS_Switch4"
+Alias LSS_Switch5 "event LSS_Switch5"
+Alias LSS_Switch6 "event LSS_Switch6"
+Alias LSS_Switch7 "event LSS_Switch7"
+Alias LSS_Switch8 "event LSS_Switch8"
+Alias LSS_Switch9 "event LSS_Switch9"
+Alias LSS_Switch0 "event LSS_Switch0"

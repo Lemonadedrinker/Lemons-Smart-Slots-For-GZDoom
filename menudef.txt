@@ -1,9 +1,9 @@
 AddOptionMenu "OptionsMenu"
 {
-    Submenu "Lemon's Custom Slots", "SlotsOptions"
+    Submenu "Lemon's Smart Slots", "SlotsOptionsMain"
 }
 
-OptionMenu "SlotsOptions"
+OptionMenu "SlotsOptionsMain"
 {
     Title "Lemon's Smart Slots"
     StaticText "Weapon Slot Gameplay Settings", 1
