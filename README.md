@@ -18,5 +18,5 @@ You can also click and drag weapons to swap the two!
 ### Dark Mode
 ![darkpreview](https://github.com/user-attachments/assets/dc122f78-99c0-4dce-9822-4886b883fe43)
 
-Known issues:
-On Mac, there may be lag with the Vulkan renderer, which can be fixed by switching to OpenGL.
+## Known issues:
+- On Mac, there may be lag with the Vulkan renderer, which can be fixed by switching to OpenGL.
